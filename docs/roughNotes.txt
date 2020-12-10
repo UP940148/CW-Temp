@@ -1,0 +1,80 @@
+Directory Structure:
+config.js
+database.js
+readme.md
+server.js
+www/
+  css/
+    *.css
+  html/
+    *.html
+  saved/
+    documents/
+      *.pdf
+    images/
+      *.jpg
+    reviews/
+      *.txt
+  scripts/
+    *.js
+
+Database Design:
+  - Need to be able to store
+    - User information. Primary key can be their Google unique id
+    - Work. Primary key can be serial, foreign key should link to author
+    - Reviews. Primary key can be serial, foreign key should link to author and related work PK
+    - Categories. They probably only need one field, the name of the category. However I might give them a serial primary key
+    - Review groups. Group id would be primary key, group leader and roster would be foreign keys
+    - Joining table for review groups and users
+  When work is uploaded, it should be able to be posted to either a specific group, or to the public (I'm debating a reddit style system where users can only post to groups)
+  Users should be able to search for groups that are open to the public
+
+API:
+  - I need to use a naming convention. Last time my API looked atrocious
+    - Everything should be lowercase (unless it's a variable)
+    - Use hyphens for API paths rather than camelCase
+
+Login/Authorisation:
+  - I'll use the google API to handle logins and authorisation through the web app
+
+Storing the shared work:
+  - Files could be uploaded using something like Multer. The file would be stored in ./www/saved/documents/ and its name would be converted to a unique id (Research needed into Multer/UUID)
+  - If a link is being used rather than a pdf file, it could be stored in the database where the reference to the pdf would be
+  - I might attempt to have file conversion in the server. If a user tries to upload a file that's not a .pdf but is another kind of document (.docx, etc) then give them the option to continue upload with conversion
+  - Might also look at pdf compression to save server storage space
+  - Work would need to be saved with a creation date, a user profile linked to them, and a date when it was last edited. Edited date for a link version might prove challenging though, so would likely just depend on the creator telling us when it's been updated
+
+  - Opening Microsoft Office documents in the browser is incredibly difficult. It looks like the general solution people go with tends to be to just convert to PDF and embed that way. So for now that's what I'll do
+
+Adding reviews:
+  - People could have the option to leave reviews as either plain text which would be done in a standard text box, or they could leave reviews in html format. The reviews would be saved as files with references in the database
+  - Reviews would need to be saved with a creation date, a user profile linked to them, and a date when it was last edited
+
+
+Features and API calls:
+- When creating a profile, need to POST to user table
+  - Might need to POST to Multer API for profile pictures, then respond with new filename
+- When creating a group, need to POST to groups table and POST to registration table
+  - Might need to POST to Multer API for group pictures, then respond with new filename
+- When joining group, need to POST to registration table
+- When uploading work, need to POST to work table, and POST to share table
+  - Will also need to POST to Multer API call and use the response(with new filename) to POST document
+- When uploading a reply, need to POST to reply table
+  [REDACTED]: - Will also need to POST to Multer API call and use the response(with new filename) to POST reply
+- When searching for groups need to GET from groups table (using groupName selector)
+- When viewing feed, need to GET from work (using userId, to check registration, and match with share table)
+- When viewing group feed, need to GET from work (using groupId and comparing share table to get documents)
+- When viewing replies, need to GET from reply table using shareId
+- When updating work, need to PATCH document table using documentId
+- When updating profile, need to PATCH user table using userId
+  - Will also need to POST to Multer API call and use the response(with new filename) to POST document
+
+
+
+
+
+
+
+
+Things learnt during creation:
+- <embed> elements don't like having their sources changed after one has been assigned. Not sure why, I guess it probably loads it's source and doesn't refresh itself once the source changes. So I just delete the element and create a new one instead
